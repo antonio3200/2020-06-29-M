@@ -5,8 +5,11 @@
 package it.polito.tdp.imdb;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.imdb.model.Director;
+import it.polito.tdp.imdb.model.DirectorAdiacenti;
 import it.polito.tdp.imdb.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,10 +38,10 @@ public class FXMLController {
     private Button btnCercaAffini; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxAnno"
-    private ComboBox<?> boxAnno; // Value injected by FXMLLoader
+    private ComboBox<Integer> boxAnno; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxRegista"
-    private ComboBox<?> boxRegista; // Value injected by FXMLLoader
+    private ComboBox<Director> boxRegista; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtAttoriCondivisi"
     private TextField txtAttoriCondivisi; // Value injected by FXMLLoader
@@ -48,12 +51,36 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    		
+    	Integer anno=this.boxAnno.getValue();
+    	if(anno==null) {
+    		txtResult.appendText("SELEZIONARE UN ANNO DALL'APPOSITA TENDINA");
+    		return;
+    	}
+    	
+    	this.model.creaGrafo(anno);
+    	txtResult.appendText("GRAFO CREATO \n\n");
+    	txtResult.appendText("Numero Vertici : "+this.model.nVertici()+"\n");
+    	txtResult.appendText("Numero Archi : "+this.model.nArchi());
+    	List<Director> vertici= this.model.getVertici();
+    	this.boxRegista.getItems().addAll(vertici);
+    	
     }
 
     @FXML
     void doRegistiAdiacenti(ActionEvent event) {
-
+    	txtResult.clear();
+    	Director selezionato=this.boxRegista.getValue();
+    	if(selezionato==null) {
+    		txtResult.setText("SELEZIONARE UN REGISTA DALLA TENDINA APPOSITA");
+    		return;
+    	}
+    	
+    	List<DirectorAdiacenti> vicini= this.model.getAdiacenti(selezionato);
+    	txtResult.appendText("Lista dei registi adiacenti a "+selezionato.toString()+"\n\n");
+    	for(DirectorAdiacenti da : vicini) {
+    		txtResult.appendText(da.toString()+"\n");
+    	}
     }
 
     @FXML
@@ -76,7 +103,9 @@ public class FXMLController {
    public void setModel(Model model) {
     	
     	this.model = model;
-    	
+    	for(int i=2004; i<=2006;i++) {
+    	this.boxAnno.getItems().add(i);
+   }
     }
     
 }
